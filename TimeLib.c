@@ -98,6 +98,14 @@ timelib_t timelib_get()
 	if (halt == true)
 		return sys_time;
 
+	// Check how many seconds have elapsed (if any) since the last call
+	// and update the timestamp counter
+	while (tick_get() - last_update >= TICK_SECOND) {
+		// Increment timestamp
+		sys_time++;
+		last_update += TICK_SECOND;
+	}
+	
 	// Check if time needs sync to timebase
 	if (sync_next <= sys_time) {
 		// Null pointer check
@@ -112,14 +120,6 @@ timelib_t timelib_get()
 				tstatus = (tstatus == E_TIME_NOT_SET) ? E_TIME_NOT_SET : E_TIME_NEEDS_SYNC;
 			}
 		}
-	}
-
-	// Check how many seconds have elapsed (if any) since the last call
-	// and update the timestamp counter
-	while (tick_get() - last_update >= TICK_SECOND) {
-		// Increment timestamp
-		sys_time++;
-		last_update += TICK_SECOND;
 	}
 
 	return sys_time;
